@@ -3,7 +3,8 @@ import Navbar from '../../components/navbar/navbar'
 import Card from '../../components/card/card';
 import product from '../../assets/data/product';
 import {  useState, useEffect } from 'react';
-import { Input, Icon } from 'semantic-ui-react'
+import { Input, Icon } from 'semantic-ui-react';
+const axios = require('axios');
 
 function Home() {
   const [data, setData] = useState([]);
@@ -14,7 +15,31 @@ function Home() {
 
 
   const fetchData = async () => {
-    await setData(product);
+    //start call api  
+    axios.get('https://lap-center.herokuapp.com/api/product')
+  .then(function (response) {
+    // handle success
+    console.log('api dung',response.data.products);
+    setData(response.data.products);
+  })
+  .catch(function (error) {
+    // handle error
+    console.log(error);
+  })
+  .then(function () {
+    // always executed
+  });
+  // end call api
+    // await setData(product);
+  // fetch('https://lap-center.herokuapp.com/api/product')
+  // .then(response => response.json())
+  // .then(data => {
+  //   console.log('Success:', data);
+  //   setData(data.products)
+  // })
+  // .catch((error) => {
+  //   console.error('Error:', error);
+  // });
   };
 
   useEffect(async () => {
