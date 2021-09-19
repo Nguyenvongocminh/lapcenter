@@ -6,6 +6,7 @@ import Contact from './pages/contact/contact';
 import Introduce from './pages/introduce/introduce';
 import Login from './pages/login/login';
 import notFound from './pages/notFound/notFound';
+import Register from './pages/register/register';
 function App() {
   return (
     <BrowserRouter>
@@ -14,6 +15,7 @@ function App() {
         <Route path='/contact' exact component={Contact}/>
         <Route path='/introduce' exact component={Introduce}/>
         <Route path='/login' exact component={Login}/>
+        <Route path='/register' exact component={Register}/>
         <Route exact component={notFound}/>
       </Switch>
     </BrowserRouter>
