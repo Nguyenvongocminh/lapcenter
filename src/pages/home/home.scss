@@ -47,6 +47,9 @@
         width: 200px !important;
         height: 160px !important;
       }
+      .cpu{
+        text-overflow: ellipsis;
+      }
 
       .name {
         text-overflow: ellipsis;
