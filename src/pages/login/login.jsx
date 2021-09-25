@@ -3,7 +3,7 @@ import "./login.scss";
 import { Input, Button } from "semantic-ui-react";
 import React, { useState } from "react";
 import {useHistory} from 'react-router-dom'
-
+const axios = require("axios");
 const account = { username: "admin", password: "admin" };
 
 function Login() {
@@ -18,16 +18,18 @@ function Login() {
     }
   };
   const onLogin = () => {
-    console.log(userName, password);
-    if(userName === account.username && password === account.password){
-        console.log('Đăng nhập thành công');
-        alert('Đăng nhập thành công!!!')
-        history.push('/')
-    }else{
-        console.log('Đăng nhập thất bại');
-        alert('Nhập sai tên đăng nhập hoặc mật khẩu!!!')
-        setPassword('')
-    }
+    axios.post('https://lap-center.herokuapp.com/api/login', {
+      username: userName,
+      password: password
+    })
+    .then(function (response) {
+      console.log(response);
+      history.push('/');
+    })
+    .catch(function (error) {
+      console.log(error);
+      alert("sai tên đăng nhập hoặc mật khẩu")
+    });
   }
   return (
     <div>
