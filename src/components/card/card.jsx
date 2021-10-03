@@ -2,12 +2,15 @@ import React from "react";
 import "./card.scss";
 import { Button, Icon, Item } from "semantic-ui-react";
 import {useHistory} from 'react-router-dom'
+
 const Card = (props) => {
   const item = props.product;
   const history= useHistory();
   const moveToDetail= () =>{
-    history.push('/productDetail');
+    history.push(`/product/${item._id}`);
+    console.log('item .id:',item._id)
   }
+
   return (
     <div className="card-container" onClick={moveToDetail}>
       <img className="image" src={item.images[0]} />

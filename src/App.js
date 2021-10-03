@@ -17,7 +17,7 @@ function App() {
         <Route path='/introduce' exact component={Introduce}/>
         <Route path='/login' exact component={Login}/>
         <Route path='/register' exact component={Register}/>
-        <Route path='/productDetail' exact component={ProductDetail}/>
+        <Route path='/product/:id' exact component={ProductDetail}/>
         <Route exact component={notFound}/>
       </Switch>
     </BrowserRouter>
