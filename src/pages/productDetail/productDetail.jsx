@@ -2,12 +2,13 @@ import React,{ useState, useEffect } from "react";
 import { Segment, Button, Table, Loading, Card } from "semantic-ui-react";
 import "./productDetail.scss";
 import Navbar from "../../components/navbar/navbar";
-import { useLocation } from "react-router-dom";
+import { useLocation,useHistory } from "react-router-dom";
 import Carousel from 'react-multi-carousel';
 import 'react-multi-carousel/lib/styles.css';
 import axios from "axios";
 import CardItem from "../../components/cardItem/cardItem";
-
+import Footer from "../footer/footer";
+import Buy from "../buy/buy";
 const responsive = {
   superLargeDesktop: {
     // the naming can be any, depends on you.
@@ -39,6 +40,7 @@ const ProductDetail = () => {
   const location = useLocation();
   const id = location.pathname?.split('product/')[1];
   // const id = location.pathname?.replace('product/', '');
+  const history = useHistory();
 
   useEffect(async () => {
     window.scrollTo(0, 0);
@@ -83,7 +85,9 @@ const ProductDetail = () => {
     setImage(image);
   }
 
-
+  const moveToBuy = () => {
+    history.push(`/buy/${id}`)
+      };
   return (
     <div>
         <Navbar/>
@@ -119,7 +123,7 @@ const ProductDetail = () => {
               <div className="discount-content">something</div>
             </div>
             <div className="detail-buy">
-              <Button color="red">MUA NGAY</Button>
+              <Button onClick={moveToBuy} color="red">MUA NGAY</Button>
               <p>
                 GỌI NGAY <a href="tel:+84969442510"> 0379 26 6143 </a> ĐỂ GIỮ
                 HÀNG
@@ -202,6 +206,10 @@ const ProductDetail = () => {
           </Carousel>
         </div>
       </Segment>
+      <hr style={{ width: "80%" }} />
+      <Footer />
+
+
     </div>
   );
 };

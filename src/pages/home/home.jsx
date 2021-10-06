@@ -4,6 +4,7 @@ import Card from "../../components/card/card";
 import product from "../../assets/data/product";
 import { useState, useEffect } from "react";
 import { Input, Icon, Segment,Pagination } from "semantic-ui-react";
+import Footer from "../footer/footer";
 const axios = require("axios");
 
 function Home() {
@@ -141,6 +142,8 @@ function Home() {
     onPageChange={handlePaginationChange}
 
   />
+  <hr style={{ width: "80%" }} />
+      <Footer/>
       </div>
     </div>
   );
