@@ -8,6 +8,8 @@ import {
   Label,
   Form,
   TextArea,
+  Image,
+  Modal,
 } from "semantic-ui-react";
 import axios from "axios";
 import { useLocation, useHistory } from "react-router-dom";
@@ -20,17 +22,20 @@ const Buy = () => {
   const [address, setAddress] = useState("");
   const [data, setData] = useState([]);
   const [image, setImage] = useState("");
-  const [load, setLoad] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [open, setOpen] = useState(false);
   const location = useLocation();
   const id = location.pathname?.split("buy/")[1];
   const [quantity, setQuantity] = useState(1);
+  const [openDialog,setOpenDialog]=useState(false);
+  const [message,setMessage]=useState('');
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, []); 
 
   const fetchData = async () => {
-    setLoad(true);
+    setLoading(true);
     let url = `https://lap-center.herokuapp.com/api/product/getProductById/${id}`;
     axios
       .get(url)
@@ -39,11 +44,12 @@ const Buy = () => {
         console.log("data detail: ", data);
         setData(data);
         setImage(data.images[0]);
+        setLoading(false);
         // fetch API for get more product for this brand
       })
       .catch(function (err) {
         console.log("error: ", err);
-        setLoad(false);
+        setLoading(false);
       });
   };
   const onChange = (number) => {
@@ -83,10 +89,39 @@ const Buy = () => {
   if (!customerName || !phoneNumber || !email || !address) checkInfo = true;
   if (customerName && phoneNumber && email && address) checkInfo = false;
 
+  const onOrder = () => {
+    setOpen(false)
+    setLoading(true)
+    axios.post('https://lap-center.herokuapp.com/api/order/addOrder', {
+      customerName : customerName,
+      email: email,
+      phone: phoneNumber,
+      address: address,
+      productName: data.name,
+      productBrand: data.brand,
+      quantity: quantity,
+      orderStatus: 1
+    })
+    .then(function (res) {
+      console.log(res);
+      setLoading(false);
+      setOpenDialog(true);
+      setMessage('Đặt hàng thành công!!!');
+    })
+    .catch(function (error) {
+      console.log(error);
+      setLoading(false);
+      setOpenDialog(false);
+      setMessage("Đặt hàng thất bại,vui lòng thử lại!!!")
+    });
+  };
+
+
+
   return (
     <div>
       <Navbar />
-      <Segment className="buy-container">
+      <Segment loading={loading} className="buy-container"> 
         <div className="buy-title">
           <p>Để đặt hàng</p>
           <span>
@@ -99,10 +134,7 @@ const Buy = () => {
             <img className="buy-image" src={image} alt="" />
             <p>{data.name}</p>
             <div className="quantity">
-              <Button
-                icon="minus"
-                onClick={() => onChangeQuantity("minus")}
-              />
+              <Button icon="minus" onClick={() => onChangeQuantity("minus")} />
               <Input
                 className="inp-quantity"
                 value={quantity}
@@ -110,17 +142,14 @@ const Buy = () => {
                   onChange(e.target.value);
                 }}
               />
-              <Button
-                icon="plus"
-                onClick={() => onChangeQuantity("plus")}
-              />
+              <Button icon="plus" onClick={() => onChangeQuantity("plus")} />
               <h4>{data.price} đ</h4>
             </div>
           </div>
           <hr />
           <div className="buy-total">
             <h3>Tổng tiền:</h3>
-            <p>{data.price*quantity} đ</p>
+            <p>{data.price * quantity} đ</p>
           </div>
           <div className="user-info">
             <Segment raised>
@@ -160,15 +189,91 @@ const Buy = () => {
                     onChange={(e) => onChangeInfo(e, "email")}
                   />
                 </Form.Field>
-                <Button color="red" disabled={checkInfo} className="btn-order">
-                  Đặt hàng
-                </Button>
+
+                <Modal
+                  onClose={() => setOpen(false)}
+                  onOpen={() => setOpen(true)}
+                  open={open}
+                  trigger={
+                    <Button
+                      color="red"
+                      disabled={checkInfo}
+                      className="btn-order"
+                    >
+                      Đặt hàng
+                    </Button>
+                  }
+                >
+                  <Modal.Header><h2 className="txt-check">Xác nhận thông tin</h2>
+                  </Modal.Header>
+                  <Modal.Content image>
+                    <Image size="medium" src={image} wrapped />
+                    <Modal.Description>
+                    <h5 className="txt-title">Thông tin sản phẩm</h5>
+                      <div className="info-check">
+                        <p>Tên sản phẩm:</p>
+                        <span>{data.name}</span>
+                      </div>
+                      <div className="info-check">
+                        <p>Hãng:</p>
+                        <span>{data.brand}</span>
+                      </div>
+                      <div className="info-check">
+                        <p>Số lượng</p>
+                        <span>{quantity}</span>
+                      </div>
+                      <div className="info-check">
+                        <p>Tổng tiền:</p>
+                        <span>{data.price * quantity}VNĐ</span>
+                      </div>
+                      <h5 className="txt-title">Thông tin khách hàng</h5>
+                      <div className="info-check">
+                        <p>Tên khách hàng:</p>
+                        <span>{customerName}</span>
+                      </div>
+                      <div className="info-check">
+                        <p>Số điện thoại:</p>
+                        <span>{phoneNumber}</span>
+                      </div>
+                      <div className="info-check">
+                        <p>Địa chỉ</p>
+                        <span>{address}</span>
+                      </div>
+                      <div className="info-check">
+                        <p>Email:</p>
+                        <span>{email}</span>
+                      </div>
+                    </Modal.Description>
+                  </Modal.Content>
+                  <Modal.Actions>
+                    <Button onClick={() => setOpen(false)}>Hủy</Button>
+                    <Button onClick={onOrder}  color='red'>
+                      Xác nhận
+                    </Button>
+                  </Modal.Actions>
+                </Modal>
               </Form>
             </Segment>
           </div>
         </div>
       </Segment>
-      <Footer/>
+      <Modal
+        onClose={() => setOpenDialog(false)}
+        onOpen={() => setOpenDialog(true)}
+        open={openDialog}
+        size="mini"
+      >
+        <Modal.Header>
+          <h4 className="txt-check">Thông báo</h4>
+        </Modal.Header>
+        <Modal.Content image>
+          <p>{message}</p>
+        </Modal.Content>
+        <Modal.Actions>
+          <Button onClick={() => setOpenDialog(false)}>Đóng</Button>
+        </Modal.Actions>
+      </Modal>
+      <Footer />
     </div>
   );
 };
