@@ -5,9 +5,10 @@ import {Link} from 'react-router-dom';
 import { useHistory } from 'react-router';
 
 
+
 const Navbar = (props) => {
     const history = useHistory();
-  
+    const currentUser=localStorage.getItem('customerName');
     const backToHome = () => {
       history.push("/");
     }
@@ -27,9 +28,15 @@ const Navbar = (props) => {
           <Link className="option" to="/contact">
             LIÊN HỆ
           </Link>
+          {currentUser ?
+            <Link className="option" to="/login" onClick={()=>localStorage.clear()}>
+            ĐĂNG XUẤT
+          </Link>:
           <Link className="option" to="/login">
-            ĐĂNG NHẬP
-          </Link>
+          ĐĂNG NHẬP
+        </Link>
+          }
+          
         </div>
       </div>
     );

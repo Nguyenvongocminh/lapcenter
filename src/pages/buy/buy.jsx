@@ -29,6 +29,7 @@ const Buy = () => {
   const [quantity, setQuantity] = useState(1);
   const [openDialog,setOpenDialog]=useState(false);
   const [message,setMessage]=useState('');
+  const currentUser=localStorage.getItem('customerName');
 
   useEffect(() => {
     fetchData();
@@ -105,6 +106,8 @@ const Buy = () => {
     .then(function (res) {
       console.log(res);
       setLoading(false);
+      currentUser && onAddToHistory();
+      onAddToHistory();
       setOpenDialog(true);
       setMessage('Đặt hàng thành công!!!');
     })
@@ -115,7 +118,25 @@ const Buy = () => {
       setMessage("Đặt hàng thất bại,vui lòng thử lại!!!")
     });
   };
+const onAddToHistory =() =>{
+  axios.post('https://lap-center.herokuapp.com/api/history/addProductToHistory', {
+      userId : localStorage.getItem("userId"),
+      phone: phoneNumber,
+      address: address,
+      productName: data.name,
+      productBrand: data.brand,
+      quantity: quantity,
+      orderStatus: 1
+    })
+    .then(function (res) {
+      console.log(res);
+      console("hihi");
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
 
+}
 
 
   return (
