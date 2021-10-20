@@ -3,8 +3,9 @@ import Navbar from "../../components/navbar/navbar";
 import Card from "../../components/card/card";
 import product from "../../assets/data/product";
 import { useState, useEffect } from "react";
-import { Input, Icon, Segment,Pagination } from "semantic-ui-react";
+import { Input, Icon, Segment, Pagination } from "semantic-ui-react";
 import Footer from "../footer/footer";
+import HistoryAndCart from "../../components/historyAndcart/historyAndCart";
 const axios = require("axios");
 
 function Home() {
@@ -15,16 +16,17 @@ function Home() {
   const [pageNumber, setPageNumber] = useState(1);
   const [totalPage, setTotalPage] = useState(0);
   const [loading, setLoading] = useState(false);
+  const currentUser = localStorage.getItem("customerName");
 
   const fetchData = async (url) => {
     setLoading(true);
     await axios
       .get(url)
       .then(function (response) {
-        setPageNumber(1)
+        setPageNumber(1);
         setData(response.data.products);
         console.log(response.data);
-        setTotalPage(response.data.totalPage)
+        setTotalPage(response.data.totalPage);
         setLoading(false);
       })
       .catch(function (error) {
@@ -42,19 +44,19 @@ function Home() {
   };
 
   const onSubmitSearch = async () => {
-    let url = `https://lap-center.herokuapp.com/api/product?productName=${search}&productBrand=${brand}&orderByColumn=price&orderByDirection=${price}`
+    let url = `https://lap-center.herokuapp.com/api/product?productName=${search}&productBrand=${brand}&orderByColumn=price&orderByDirection=${price}`;
     await fetchData(url);
   };
 
   const onSearchBrand = async (e) => {
     setBrand(e.target.value);
-    let url = ` https://lap-center.herokuapp.com/api/product?productName=${search}&productBrand=${e.target.value}&orderByColumn=price&orderByDirection=${price}`
+    let url = ` https://lap-center.herokuapp.com/api/product?productName=${search}&productBrand=${e.target.value}&orderByColumn=price&orderByDirection=${price}`;
     await fetchData(url);
   };
 
   const sortPrice = async (e) => {
     setPrice(e.target.value);
-    let url = `https://lap-center.herokuapp.com/api/product?productName=${search}&productBrand=${brand}&orderByColumn=price&orderByDirection=${e.target.value}`
+    let url = `https://lap-center.herokuapp.com/api/product?productName=${search}&productBrand=${brand}&orderByColumn=price&orderByDirection=${e.target.value}`;
     await fetchData(url);
   };
   const handlePaginationChange = async (e, { activePage }) => {
@@ -74,7 +76,7 @@ function Home() {
         console.log(error);
       });
   };
-    
+
   return (
     <div className="home-container">
       <Navbar />
@@ -97,7 +99,9 @@ function Home() {
         </div>
         <div className="selectForm">
           <select className="selectBox" value={brand} onChange={onSearchBrand}>
-            <option selected value="">Tất cả</option>
+            <option selected value="">
+              Tất cả
+            </option>
             <option value="Asus">ASUS</option>
             <option value="Dell">DELL</option>
             <option value="Acer">ACER</option>
@@ -112,38 +116,45 @@ function Home() {
           </select>
         </div>
       </div>
+      {/* <div className="currentUser">{currentUser && <p>Chào mừng, <span>{currentUser}</span></p>}</div> */}
+      <div className="currentUser">
+        {currentUser && (
+          <p>
+            Chào mừng, <span> {currentUser} </span>
+          </p>
+        )}
+      </div>
+      {currentUser && <HistoryAndCart />}
       <div className="container-body">
-        <div className="menuLeft">
-         
-        </div>
+        <div className="menuLeft"></div>
         <Segment loading={loading} className="product">
-          {data.length === 0?
-          <div className="noResults">
-            <h1 style={{textAlign:'center',color:'red'}}>không tìm thấy sản phẩm nào</h1>
-          </div> :
-          data.map((item) => (
-            <Card product={item} />
-          ))
-        }
+          {data.length === 0 ? (
+            <div className="noResults">
+              <h1 style={{ textAlign: "center", color: "red" }}>
+                không tìm thấy sản phẩm nào
+              </h1>
+            </div>
+          ) : (
+            data.map((item) => <Card product={item} />)
+          )}
           ;
         </Segment>
         <div className="menuRight"></div>
       </div>
       <div className="paginator">
-      <Pagination
-    boundaryRange={0}
-    // defaultActivePage={1}
-    activePage={pageNumber}
-    ellipsisItem={true}
-    firstItem={true}
-    lastItem={true}
-    siblingRange={1}
-    totalPages={totalPage}
-    onPageChange={handlePaginationChange}
-
-  />
-  <hr style={{ width: "80%" }} />
-      <Footer/>
+        <Pagination
+          boundaryRange={0}
+          // defaultActivePage={1}
+          activePage={pageNumber}
+          ellipsisItem={true}
+          firstItem={true}
+          lastItem={true}
+          siblingRange={1}
+          totalPages={totalPage}
+          onPageChange={handlePaginationChange}
+        />
+        <hr style={{ width: "80%" }} />
+        <Footer />
       </div>
     </div>
   );

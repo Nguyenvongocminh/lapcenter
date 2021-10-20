@@ -12,7 +12,7 @@
     .search {
       margin-left: 5px;
     }
-
+    
     .selectForm {
       display: flex;
       justify-content: start;
@@ -27,7 +27,16 @@
       margin-top: -9px;
     }
   }
+  .currentUser {
+    top: 90px;
+    right: 20px;
+    position: absolute;
 
+    span {
+      font-weight: 700;
+      color: #0bb102;
+    }
+  }
   .container-body {
     display: flex;
     justify-content: space-between;

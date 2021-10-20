@@ -9,6 +9,7 @@ import notFound from './pages/notFound/notFound';
 import Register from './pages/register/register';
 import ProductDetail from './pages/productDetail/productDetail';
 import Buy from './pages/buy/buy';
+import History from './pages/history/history';
 function App() {
   return (
     <BrowserRouter>
@@ -20,6 +21,7 @@ function App() {
         <Route path='/register' exact component={Register}/>
         <Route path='/product/:id' exact component={ProductDetail}/>
         <Route path='/buy/:id' component={Buy}/>
+        <Route path='/history/:id' exact component={History}/>
         <Route exact component={notFound}/>
       </Switch>
     </BrowserRouter>
