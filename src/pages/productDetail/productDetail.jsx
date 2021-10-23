@@ -1,5 +1,5 @@
 import React,{ useState, useEffect } from "react";
-import { Segment, Button, Table, Loading, Card } from "semantic-ui-react";
+import { Segment, Button, Table, Loading, Card,Modal } from "semantic-ui-react";
 import "./productDetail.scss";
 import Navbar from "../../components/navbar/navbar";
 import { useLocation,useHistory } from "react-router-dom";
@@ -38,6 +38,8 @@ const ProductDetail = () => {
   const [image,setImage]=useState('');
   const [loading, setLoading] = useState(false);
   const location = useLocation();
+  const [message,setMessage]=useState('');
+  const [openDialog,setOpenDialog]=useState(false);
   const id = location.pathname?.split('product/')[1];
   // const id = location.pathname?.replace('product/', '');
   const history = useHistory();
@@ -66,6 +68,30 @@ const ProductDetail = () => {
       })
   }
 
+  const onAddToCart =() =>{
+    setLoading(true);
+    axios.post('https://lap-center.herokuapp.com/api/cart/addProductToCart', {
+        userId : localStorage.getItem("userId"),
+        productId: id,
+        productName: data.name,
+        productBrand: data.brand,
+       image:image,
+       price:data.price,
+      })
+      .then(function (res) {
+        console.log(res);
+        setLoading(false);
+        setOpenDialog(true);
+        setMessage('Đặt hàng thành công!!!');
+      })
+      .catch(function (error) {
+        console.log(error);
+       setLoading(false);
+       setOpenDialog(true);
+       setMessage('Đặt hàng ko thành công vui lòng thử lại!!!');
+      });
+  
+  }
 
   const fecthSameProduct = (brand) => {
     // fetch API for get more product for this brand
@@ -124,6 +150,7 @@ const ProductDetail = () => {
             </div>
             <div className="detail-buy">
               <Button onClick={moveToBuy} color="red">MUA NGAY</Button>
+              <Button onClick={onAddToCart} color="blue" className="btnCart">THÊM VÀO GIỎ HÀNG</Button>
               <p>
                 GỌI NGAY <a href="tel:+84969442510"> 0379 26 6143 </a> ĐỂ GIỮ
                 HÀNG
@@ -204,10 +231,27 @@ const ProductDetail = () => {
               <CardItem product={item}/>
             ))}
           </Carousel>
+          <Modal
+        onClose={() => setOpenDialog(false)}
+        onOpen={() => setOpenDialog(true)}
+        open={openDialog}
+        size="mini"
+      >
+        <Modal.Header>
+          <h4 className="txt-check">Thông báo</h4>
+        </Modal.Header>
+        <Modal.Content image>
+          <p>{message}</p>
+        </Modal.Content>
+        <Modal.Actions>
+          <Button onClick={() => setOpenDialog(false)}>Đóng</Button>
+        </Modal.Actions>
+      </Modal>
         </div>
       </Segment>
       <hr style={{ width: "80%" }} />
       <Footer />
+      
 
 
     </div>
