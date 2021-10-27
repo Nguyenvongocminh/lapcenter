@@ -11,6 +11,7 @@ import ProductDetail from './pages/productDetail/productDetail';
 import Buy from './pages/buy/buy';
 import History from './pages/history/history';
 import Cart from './pages/cart/cart';
+import ManageOrder from './pages/admin/order/manageOrder';
 function App() {
   return (
     <BrowserRouter>
@@ -24,6 +25,7 @@ function App() {
         <Route path='/buy/:id' component={Buy}/>
         <Route path='/history/:id' exact component={History}/>
         <Route path='/cart/:id' exact component={Cart}/>
+        <Route path='/admin/order' exact component={ManageOrder}/>
         <Route exact component={notFound}/>
       </Switch>
     </BrowserRouter>
