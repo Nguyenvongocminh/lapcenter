@@ -1,7 +1,7 @@
 .home-container {
   padding-bottom: 100px;
   .filter {
-    width: 80%;
+    width: 70%;
     margin: 0 auto;
     display: flex;
     // justify-content: space-around;
@@ -12,7 +12,7 @@
     .search {
       margin-left: 5px;
     }
-    
+
     .selectForm {
       display: flex;
       justify-content: start;
@@ -27,6 +27,7 @@
       margin-top: -9px;
     }
   }
+
   .currentUser {
     top: 90px;
     right: 20px;
@@ -37,6 +38,14 @@
       color: #0bb102;
     }
   }
+
+  .imgBanner {
+    width: 100%;
+    height: 350px;
+    background-repeat: no-repeat;
+    background-size: cover;
+  }
+
   .container-body {
     display: flex;
     justify-content: space-between;
@@ -57,8 +66,8 @@
     flex-wrap: wrap;
     flex: start;
     display: flex;
-    // padding-top: 180px;
-    width: 70%;
+    padding-top: 180px;
+    width: 80%;
     z-index: 1;
     border: none !important;
 
@@ -66,7 +75,7 @@
       width: 100%;
     }
   }
-  .paginator{
+  .paginator {
     text-align: center;
   }
 }

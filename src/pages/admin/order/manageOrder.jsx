@@ -1,62 +1,47 @@
-import React, { useState, useEffect } from "react";
-import "./manageOrder.scss";
-import Navbar from "../../../components/navbar/navbar";
+import { useState, useEffect } from "react";
 import {
-  Table,
   Segment,
+  Table,
   Button,
   Popup,
+  Menu,
+  Icon,
   Modal,
   Pagination,
 } from "semantic-ui-react";
+import Navbar from "../../../components/navbar/navbar";
+import "./manageOrder.scss";
+import { useHistory } from "react-router-dom";
 import axios from "axios";
-const ManageOrder = () => {
 
+const ManageOrder = () => {
   const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [pageNumber, setPageNumber] = useState(1);
-  const [totalPage, setTotalPage] = useState(1);
+  const [totalPage, setTotalPage] = useState(0);
+  const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
-  const [openRemove, setOpenRemove] = useState(false);
-  const [dataItem, setDataItem] = useState([]);
+  const [dataItem, setDataItem] = useState(false);
+  const [openDialog, setOpenDialog] = useState(false);
   const [message, setMessage] = useState("");
-  const [openDialog, setOpenDialog] = useState("");
   const [orderId, setOrderId] = useState("");
   const [orderStatus, setOrderStatus] = useState(0);
   const [temp, setTemp] = useState([]);
-  const [productId, setProductId] = useState("");
-  
-  const handlePaginationChange = async (activePage) => {
-    setTemp(activePage);
-    const page = parseInt(activePage.target.innerHTML);
-    await setLoading(true);
-    await setPageNumber(page);
-    let url = `https://lap-center.herokuapp.com/api/order?pageNumber=${page}`;
-    await axios
-      .get(url)
-      .then(function (response) {
-        // handle success
-        window.scrollTo(0, 0);
-        setData(response.data.orders);
-        setTotalPage(response.data.totalPage);
-        setLoading(false);
-      })
-      .catch(function (error) {
-        // handle error
-        console.log(error);
-      });
-  };
+  const [isDelete, setIsDelete] = useState(false);
+  const [isUserRole, setIsUserRole] = useState(false);
+  const isAdmin = localStorage.getItem("isAdmin");
+  const history = useHistory();
 
   const fetchData = () => {
     setLoading(true);
     axios
       .get("https://lap-center.herokuapp.com/api/order")
       .then(function (response) {
+        const data = response.data.orders;
         setPageNumber(1);
-        setData(response.data.orders);
         setTotalPage(response.data.totalPage);
+        setData(data);
         setLoading(false);
-        console.log("dataas", data);
+        console.log("data", response.data);
       })
       .catch(function (error) {
         setLoading(false);
@@ -64,29 +49,61 @@ const ManageOrder = () => {
   };
 
   useEffect(() => {
-    fetchData();
+    if(isAdmin === "undefined" || isAdmin === "false") {
+      setOpenDialog(true)
+      setMessage("Bạn không thể truy cập vào địa chỉ này. Vui lòng quay lại trang chủ!!!");
+      setIsUserRole(true);
+    } else {
+      fetchData();
+    } 
   }, []);
 
   const convertOrder = (order) => {
-    return order === 1 ? (
-      <span className="case1">Vừa đặt</span>
-    ) : order === 2 ? (
-      <span className="case2">Đang giao</span>
-    ) : order === 3 ? (
-      <span className="case3">Đã nhận</span>
-    ) : (
-      <span className="case4">Trả hàng</span>
-    );
-    // switch(order) {
-    //     case 1:
-    //       return <span className="case1">Vừa đặt</span>
-    //     case 2:
-    //       return <span className="case2">Đang giao</span>
-    //     case 3:
-    //       return <span className="case3">Đã nhận</span>
-    //     default:
-    //       return <span className="case4">Trả hàng</span>
-    //   }
+    //   return order === 1 ? (
+    //     <span className="case1">Vừa đặt hàng</span>
+    //   ) : order === 2 ? (
+    //     <span className="case2">Đang giao hàng</span>
+    //   ) : order === 3 ? (
+    //     <span className="case3">Đã nhận hàng</span>
+    //   ) : (
+    //     <span className="case4">Trả hàng</span>
+    //   );
+
+    switch (order) {
+      case 1:
+        return <span className="case1">Vừa đặt hàng</span>;
+      case 2:
+        return <span className="case2">Đang giao hàng</span>;
+      case 3:
+        return <span className="case3">Đã nhận hàng</span>;
+      default:
+        return <span className="case4">Trả hàng</span>;
+    }
+  };
+
+  const handlePaginationChange = async (activePage) => {
+    setTemp(activePage);
+    const page = parseInt(activePage?.target?.innerHTML);
+    await setLoading(true);
+    await setPageNumber(page);
+    let url = "";
+    if (pageNumber === 1) {
+      url = `https://lap-center.herokuapp.com/api/order?pageNumber=1}`;
+    } else {
+      url = `https://lap-center.herokuapp.com/api/order?pageNumber=${activePage}`;
+    }
+
+    await axios
+      .get(url)
+      .then(function (response) {
+        window.scrollTo(0, 0);
+        setData(response.data.orders);
+        setTotalPage(response.data.totalPage);
+        setLoading(false);
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
   };
 
   const changeOrderStatus = () => {
@@ -101,55 +118,64 @@ const ManageOrder = () => {
       )
       .then(function (res) {
         setLoading(false);
-        setOpenDialog(true);
         handlePaginationChange(temp);
+        setOpenDialog(true);
         setMessage("Thay đổi trạng thái đơn hàng thành công!!!");
       })
-      .catch(function (err) {
-        setOpenDialog(false);
-        setMessage("Đã có lỗi xảy ra. Vui lòng kiểm tra lại!!");
+      .catch(function (error) {
+        console.log(error);
+        setLoading(false);
+        setMessage(
+          "Thay đổi trạng thái đơn hàng thất bại thất bại, vui lòng thử lại sau!!!"
+        );
       });
   };
 
   const onOpenDetail = (item) => {
     setDataItem(item);
-    setOrderStatus(item.orderStatus);
     setOrderId(item._id);
+    setOrderStatus(item.orderStatus);
     setOpen(true);
   };
 
   const handleSelectChange = (e) => {
-    console.log("value", parseInt(e.target.value));
     const order = parseInt(e.target.value);
     setOrderStatus(order);
   };
+
   const onDelete = () => {
     setLoading(true);
-    setOpenRemove(false);
+    setIsDelete(false);
     axios
       .delete(
-        `https://lap-center.herokuapp.com/api/order/removeOrder/${productId}`
+         `https://lap-center.herokuapp.com/api/order/removeOrder/${orderId}`
       )
       .then(function (response) {
         setLoading(false);
         setOpenDialog(true);
-        setMessage("Xóa thành công");
-        fetchData()
+        setMessage("Xóa thành công sản phẩm khỏi danh sách!!!");
+        handlePaginationChange(temp);
       })
       .catch(function (error) {
+        setLoading(false);
         setOpenDialog(true);
-        setMessage("Xóa không thành công");
-        console.log(error);
+        setMessage("Xóa không thành công sản phẩm khỏi danh sách!!!");
       });
+  };
+
+  const onOpenDelete = (item) => {
+    setMessage("Bạn có chắc chắn muốn xóa đơn hàng này?");
+    setOpenDialog(true);
+    setOrderId(item._id);
+    setIsDelete(true);
   };
 
   return (
     <div>
       <Navbar />
-      <Segment className="order-container" loading={loading}>
-        <h1>Quản lý đơn hàng</h1>
-
-        <Table celled color="teal">
+      <Segment loading={loading} className="order-container">
+        <h2>Quản lý đơn hàng</h2>
+        <Table celled color="blue">
           <Table.Header>
             <Table.Row>
               <Table.HeaderCell>Tên khách hàng</Table.HeaderCell>
@@ -167,16 +193,7 @@ const ManageOrder = () => {
                 <Table.Cell>{item.productName}</Table.Cell>
                 <Table.Cell>{item.phone}</Table.Cell>
                 <Table.Cell>
-                  {/* {item.orderStatus === 1 ? (
-                    <span className="case1">Vừa đặt</span>
-                  ) : item.orderStatus === 2 ? (
-                    <span className="case2">Đang giao</span>
-                  ) : item.orderStatus === 3 ? (
-                    <span className="case3">Đã nhận</span>
-                  ) : (
-                    <span className="case4">Trả hàng</span>
-                  )} */}
-                  {convertOrder(item.orderStatus)}
+                  <Table.Cell>{convertOrder(item.orderStatus)}</Table.Cell>
                 </Table.Cell>
                 <Table.Cell>
                   <Popup
@@ -186,7 +203,9 @@ const ManageOrder = () => {
                         icon="eye"
                         color="facebook"
                         circular
-                        onClick={() => onOpenDetail(item)}
+                        onClick={() => {
+                          onOpenDetail(item);
+                        }}
                       />
                     }
                   />
@@ -198,8 +217,7 @@ const ManageOrder = () => {
                         color="youtube"
                         circular
                         onClick={() => {
-                          setProductId(item._id);
-                          setOpenRemove(true)
+                          onOpenDelete(item);
                         }}
                       />
                     }
@@ -214,7 +232,6 @@ const ManageOrder = () => {
               <Table.HeaderCell colSpan="5">
                 <Pagination
                   boundaryRange={0}
-                  // defaultActivePage={1}
                   activePage={pageNumber}
                   ellipsisItem={true}
                   firstItem={true}
@@ -228,12 +245,13 @@ const ManageOrder = () => {
           </Table.Footer>
         </Table>
       </Segment>
+
       <Modal
         onClose={() => setOpen(false)}
         onOpen={() => setOpen(true)}
         open={open}
       >
-        <Modal.Header>THÔNG TIN KHÁCH HÀNG</Modal.Header>
+        <Modal.Header>Thông tin khách hàng</Modal.Header>
         <Modal.Content>
           <Modal.Description>
             <div className="info-check">
@@ -267,17 +285,17 @@ const ManageOrder = () => {
                 onChange={(e) => handleSelectChange(e)}
                 className="select-status"
               >
-                <option value="1">Vừa đặt</option>
-                <option value="2">Đang giao</option>
-                <option value="3">Đã nhận</option>
-                <option value="4">Gửi trả</option>
+                <option value="1">Vừa đặt hàng</option>
+                <option value="2">Đang giao hàng</option>
+                <option value="3">Đã nhận hàng</option>
+                <option value="4">Trả hàng</option>
               </select>
             </div>
           </Modal.Description>
         </Modal.Content>
         <Modal.Actions>
           <Button onClick={() => setOpen(false)}>Hủy</Button>
-          <Button onClick={changeOrderStatus} color="blue">
+          <Button onClick={() => changeOrderStatus()} color="blue">
             Cập nhật
           </Button>
         </Modal.Actions>
@@ -295,26 +313,15 @@ const ManageOrder = () => {
           <p>{message}</p>
         </Modal.Content>
         <Modal.Actions>
-          <Button onClick={() => setOpenDialog(false)}>Đóng</Button>
-        </Modal.Actions>
-      </Modal>
-      <Modal
-        onClose={() => setOpenRemove(false)}
-        onOpen={() => setOpenRemove(true)}
-        open={openRemove}
-        size="mini"
-      >
-        <Modal.Header>
-          <h4 className="txt-check">Thông báo</h4>
-        </Modal.Header>
-        <Modal.Content image>
-          <p>Bạn có muốn xóa sản phẩm này không ?</p>
-        </Modal.Content>
-        <Modal.Actions>
-          <Button onClick={() => setOpenRemove(false)}>Hủy</Button>
-          <Button color="green" onClick={onDelete}>
-            Xác nhận
-          </Button>
+        {!isUserRole && 
+            <Button onClick={() => {setOpenDialog(false); setIsDelete(false)}}>{isDelete ? "Hủy" : "Đóng"}</Button>
+          }
+          {isDelete &&
+            <Button onClick={() => onDelete()} color="blue">Xác nhận</Button>
+          }
+          {isUserRole &&
+            <Button onClick={() => {history.push(""); setOpenDialog(false)}} color="blue">Trang chủ</Button>
+          }
         </Modal.Actions>
       </Modal>
     </div>
